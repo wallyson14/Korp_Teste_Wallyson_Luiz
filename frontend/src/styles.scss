@@ -1,0 +1,89 @@
+// Angular Material — importa o tema base
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+// Paleta customizada — laranja Korp como primary
+$korp-primary: mat.define-palette(mat.$orange-palette, 600, 400, 800);
+$korp-accent: mat.define-palette(mat.$blue-gray-palette, 600);
+$korp-warn: mat.define-palette(mat.$red-palette);
+
+$korp-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $korp-primary,
+      accent: $korp-accent,
+      warn: $korp-warn,
+    ),
+    typography: mat.define-typography-config(),
+    density: 0,
+  )
+);
+
+@include mat.all-component-themes($korp-theme);
+
+// ── Reset e base ──────────────────────────────────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  background: #f8fafc;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ── Google Fonts ──────────────────────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+// ── Snackbar customizados ─────────────────────────────────────────────────────
+.snack-error .mdc-snackbar__surface {
+  background: #dc2626 !important;
+  color: #fff !important;
+}
+
+.snack-success .mdc-snackbar__surface {
+  background: #16a34a !important;
+  color: #fff !important;
+}
+
+// ── Scrollbar ─────────────────────────────────────────────────────────────────
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+// ── Material overrides ────────────────────────────────────────────────────────
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-shape: 8px;
+}
+
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-shape: 12px;
+}
