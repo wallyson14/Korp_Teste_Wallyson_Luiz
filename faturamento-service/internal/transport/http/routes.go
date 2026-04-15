@@ -1,3 +1,5 @@
+// aqui sao os arquivos, funçoes e rotas do http, onde tem a integraçao com o estoque, e onde tem as validaçoes
+
 package http
 
 import (
@@ -15,9 +17,6 @@ func Setup(r *gin.Engine) {
 		AllowHeaders: []string{"Origin", "Content-Type", "Authorization"},
 	}))
 
-	// =======================
-	// HEALTH
-	// =======================
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  "ok",
@@ -26,9 +25,6 @@ func Setup(r *gin.Engine) {
 		})
 	})
 
-	// =======================
-	// API V1
-	// =======================
 	api := r.Group("/api/v1")
 	{
 		notas := api.Group("/notas")
@@ -36,8 +32,7 @@ func Setup(r *gin.Engine) {
 			notas.GET("", ListarNotas)
 			notas.GET("/:id", BuscarNota)
 			notas.POST("", CriarNota)
-
-			// 🔥 ENDPOINT QUE ESTAVA FALTANDO
+			
 			notas.POST("/:id/itens", AdicionarItemNota)
 		}
 	}

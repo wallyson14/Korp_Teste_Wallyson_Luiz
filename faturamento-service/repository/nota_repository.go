@@ -1,3 +1,5 @@
+// o nota-repository é onde tem as funçoes de acesso ao banco de dados, para criar, listar, buscar e atualizar as notas fiscais
+
 package repository
 
 import (

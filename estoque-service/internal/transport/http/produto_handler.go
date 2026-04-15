@@ -1,3 +1,8 @@
+// aqui nesse é onde ficam os handlers das rotas de produto, ou seja, as funções que recebem as requisições HTTP, 
+// processam os dados e chamam as funções do repositório para interagir com o banco de dados.
+//  Cada função corresponde a uma rota específica (listar, buscar, criar, atualizar, deletar e baixar saldo) 
+// e lida com a validação dos dados de entrada, tratamento de erros e formatação da resposta HTTP.
+
 package http
 
 import (

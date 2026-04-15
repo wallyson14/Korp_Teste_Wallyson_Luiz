@@ -1,3 +1,5 @@
+// aqui nesse é onde ficam os handlers das rotas de produto, ou seja, as funções que recebem as requisições HTTP,
+
 package http
 
 import (

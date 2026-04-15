@@ -13,9 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// =======================
-// NOTAS
-// =======================
+// aqui sao onde tem as Notas Fiscais
+
 
 func CriarNota(c *gin.Context) {
 	nota := &domain.NotaFiscal{
@@ -56,9 +55,7 @@ func BuscarNota(c *gin.Context) {
 	c.JSON(http.StatusOK, nota)
 }
 
-// =======================
-// ITENS DA NOTA (INTEGRADO COM ESTOQUE)
-// =======================
+// aqui os itens da nota
 
 func AdicionarItemNota(c *gin.Context) {
 	notaID, err := strconv.Atoi(c.Param("id"))
@@ -68,12 +65,18 @@ func AdicionarItemNota(c *gin.Context) {
 	}
 
 	var input struct {
-		ProdutoID  uint `json:"produto_id"`
-		Quantidade int  `json:"quantidade"`
+		ProdutoID  uint `json:"produto_id" binding:"required"`
+		Quantidade int  `json:"quantidade" binding:"required"`
 	}
 
+	// aqui é a parte importante de validaçao
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "json inválido"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "json inválido ou campos obrigatórios ausentes"})
+		return
+	}
+
+	if input.ProdutoID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "produto_id é obrigatório"})
 		return
 	}
 
@@ -82,14 +85,15 @@ func AdicionarItemNota(c *gin.Context) {
 		return
 	}
 
-	// =========================
-	// 1. BUSCAR PRODUTO NO ESTOQUE
-	// =========================
+	
+	// aqui os dados do estoque, importante para o docker
+	
 	estoqueURL := os.Getenv("ESTOQUE_URL")
 	if estoqueURL == "" {
-		estoqueURL = "http://localhost:8081"
+		estoqueURL = "http://estoque-service:8081" 
 	}
 
+	//  Buscar produto é aqui que tem a integraçao com o estoque, para validar o produto e o estoque disponivel
 	resp, err := http.Get(estoqueURL + "/api/v1/produtos/" + strconv.Itoa(int(input.ProdutoID)))
 	if err != nil || resp.StatusCode != http.StatusOK {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "produto não encontrado no estoque"})
@@ -98,10 +102,10 @@ func AdicionarItemNota(c *gin.Context) {
 	defer resp.Body.Close()
 
 	var produto struct {
-		ID          uint   `json:"id"`
-		Codigo      string `json:"codigo"`
-		Descricao   string `json:"descricao"`
-		Saldo       int    `json:"saldo"`
+		ID        uint   `json:"id"`
+		Codigo    string `json:"codigo"`
+		Descricao string `json:"descricao"`
+		Saldo     int    `json:"saldo"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&produto); err != nil {
@@ -109,17 +113,13 @@ func AdicionarItemNota(c *gin.Context) {
 		return
 	}
 
-	// =========================
-	// 2. VALIDAR ESTOQUE
-	// =========================
+	// aqui a parte de Validar estoque
 	if produto.Saldo < input.Quantidade {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "estoque insuficiente"})
 		return
 	}
 
-	// =========================
-	// 3. BAIXAR ESTOQUE
-	// =========================
+	// Baixar estoque
 	body := map[string]int{
 		"quantidade": input.Quantidade,
 	}
@@ -135,16 +135,13 @@ func AdicionarItemNota(c *gin.Context) {
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
-	_, err = client.Do(req)
-
-	if err != nil {
+	respUpdate, err := client.Do(req)
+	if err != nil || respUpdate.StatusCode != http.StatusOK {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "falha ao baixar estoque"})
 		return
 	}
 
-	// =========================
-	// 4. SALVAR ITEM NA NOTA
-	// =========================
+	// Salva os item
 	item := domain.ItemNota{
 		NotaFiscalID: uint(notaID),
 		ProdutoID:    input.ProdutoID,

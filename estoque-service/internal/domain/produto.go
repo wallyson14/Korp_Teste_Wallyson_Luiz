@@ -1,3 +1,5 @@
+// aqui no arquivo de domínio, eu defini a estrutura do produto, com os campos necessários para o sistema de estoque funcionar coretamente.
+
 package domain
 
 import (
@@ -6,15 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Produto representa um item do catálogo de estoque.
-//
-// Nota sobre o índice único de 'codigo':
-// Utilizamos um partial unique index (uniqueIndex com where) para que o
-// soft delete funcione corretamente. Sem isso, um produto deletado (deleted_at != NULL)
-// continua ocupando o índice, impedindo o cadastro do mesmo código novamente.
-// A tag GORM não suporta partial index diretamente — o índice correto é criado
-// via AutoMigrate + trigger ou via migration manual no init-db.sh.
-// A constraint no nível do GORM (uniqueIndex) serve como salvaguarda adicional.
+// aqui defini a estrutura do produto, com os campos necessários para o sistema de estoque funcionar coretamente
 type Produto struct {
 	ID        uint           `json:"id"         gorm:"primarykey"`
 	Codigo    string         `json:"codigo"     gorm:"not null;size:50;index:idx_produto_codigo_ativo,unique,where:deleted_at IS NULL"`

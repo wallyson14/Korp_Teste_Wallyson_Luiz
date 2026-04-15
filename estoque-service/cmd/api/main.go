@@ -1,3 +1,5 @@
+// aqui no meu main eu faço a configuração inicial do serviço, como carregar as variáveis de ambiente, configurar o banco de dados e iniciar o servidor HTTP usando o framework Gin.
+
 package main
 
 import (
@@ -12,17 +14,17 @@ import (
 )
 
 func main() {
-	// carrega variáveis do .env (se existir)
+	// aqi carrega variáveis do .env, que deifini. 
 	if err := godotenv.Load(); err != nil {
-		log.Println("⚠️ .env não encontrado, usando variáveis do sistema")
+		log.Println(".env não encontrado, usando variáveis do sistema")
 	}
 
-	// modo release (produção)
+	// modo release, para produção.
 	if os.Getenv("GIN_MODE") == "release" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// conexão com banco
+	// conexão com banco de dados
 	database.ConnectDB()
 
 	r := gin.New()
@@ -30,11 +32,11 @@ func main() {
 	// segurança
 	r.SetTrustedProxies(nil)
 
-	// middlewares
+	// middlewares serve para lidar com erros e logar requisições.
 	r.Use(gin.Recovery())
 	r.Use(gin.Logger())
 
-	// rotas
+	// aqui é onde a gente define as rotas da API, e o http Transport é onde a gente implementa os handlers das rotas.
 	httpTransport.Setup(r)
 
 	port := os.Getenv("PORT")
@@ -42,9 +44,9 @@ func main() {
 		port = "8081"
 	}
 
-	log.Printf("🚀 estoque-service iniciado na porta %s", port)
+	log.Printf("Estoque-Service iniciado na porta %s", port)
 
 	if err := r.Run(":" + port); err != nil {
-		log.Fatalf("❌ Falha ao iniciar servidor: %v", err)
+		log.Fatalf("Falha ao iniciar servidor: %v", err)
 	}
 }

@@ -1,3 +1,7 @@
+// aqui no arquivo do repositório, eu implementei as funções de acesso ao banco de dados para o modelo de produto. 
+// as funções incluem operações básicas de CRUD  e uma função específica para baixar o saldo do produto, garantindo que o estoque não fique negativo.
+
+
 package repository
 
 import (

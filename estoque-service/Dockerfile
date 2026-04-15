@@ -1,4 +1,4 @@
-# ── Stage 1: build ───────────────────────────────────────────────────────────
+# ── Stage 1: build principal
 FROM golang:1.21-alpine AS builder
 
 RUN apk add --no-cache git
@@ -13,10 +13,10 @@ RUN go mod download
 
 COPY . .
 
-# CORREÇÃO: apontar para cmd/api (não cmd/server)
 RUN go build -o /app/server ./cmd/api
 
-# ── Stage 2: runtime mínimo ───────────────────────────────────────────────────
+
+# ── Stage 2: 
 FROM alpine:3.18
 
 RUN apk --no-cache add ca-certificates tzdata

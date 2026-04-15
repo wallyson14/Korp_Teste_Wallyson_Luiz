@@ -1,3 +1,6 @@
+//ja aqui nesse eu defino as funções de acesso ao banco de dados para a entidade NotaFiscal, 
+// como criar, listar, buscar por ID e atualizar notas fiscais, além de adicionar itens às notas.
+
 package repository
 
 import (

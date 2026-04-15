@@ -1,3 +1,5 @@
+//ja aqui entramos no faturamento-service, entao aqui no main.go configurei o servidor HTTP, que conecta ao banco e iniciar a aplicação.
+
 package main
 
 import (
@@ -12,29 +14,28 @@ import (
 )
 
 func main() {
-	// carrega variáveis do .env (se existir)
+	// aqui ele carrega as variáveis do .env  quando elas ja existem
 	if err := godotenv.Load(); err != nil {
-		log.Println("⚠️ .env não encontrado, usando variáveis do sistema")
+		log.Println(".env não encontrado, usando variáveis do sistema")
 	}
 
-	// modo release
+	// o modo release é para produção, ele desativa mensagens de debug e otimiza o desempenho da aplicaçao
 	if os.Getenv("GIN_MODE") == "release" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// conexão com banco
+	// serve para conexão com banco 
 	database.ConnectDB()
 
 	r := gin.New()
 
-	// segurança
 	r.SetTrustedProxies(nil)
 
-	// middlewares
+	// o middlewares é para lidar com erros e logar as requisiçoes.
 	r.Use(gin.Recovery())
 	r.Use(gin.Logger())
 
-	// rotas
+	// rotas e handlers do HTTP para o faturamento-service
 	httpTransport.Setup(r)
 
 	port := os.Getenv("PORT")
@@ -42,9 +43,9 @@ func main() {
 		port = "8082"
 	}
 
-	log.Printf("🚀 faturamento-service iniciado na porta %s", port)
+	log.Printf("faturamento-service iniciado na porta %s", port)
 
 	if err := r.Run(":" + port); err != nil {
-		log.Fatalf("❌ Falha ao iniciar servidor: %v", err)
+		log.Fatalf("Falha ao iniciar servidor: %v", err)
 	}
 }

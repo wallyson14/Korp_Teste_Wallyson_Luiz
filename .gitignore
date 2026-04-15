@@ -1,26 +1,24 @@
-# ── Ambiente ─────────────────────────────────────────────
+# Ambiente 
 .env
 .env.local
 .env.*.local
 
-# ── Go ───────────────────────────────────────────────────
-# Binários compilados localmente (não precisam ir pro repo)
+# Binários compilados localmente 
 estoque-service/server
 estoque-service/main
 faturamento-service/server
 faturamento-service/main
 
-# ── Angular / Node ────────────────────────────────────────
+# Angular / Node 
 frontend/node_modules/
 frontend/dist/
 frontend/.angular/
 frontend/.sass-cache/
 
-# ── Docker ───────────────────────────────────────────────
-# Volumes locais do postgres (dados de desenvolvimento)
+# Volumes locais do postgres
 postgres_data/
 
-# ── IDEs e editores ───────────────────────────────────────
+# IDEs e editores
 .vscode/
 .idea/
 *.swp
@@ -28,7 +26,7 @@ postgres_data/
 .DS_Store
 Thumbs.db
 
-# ── Logs ─────────────────────────────────────────────────
+# Logs
 *.log
 npm-debug.log*
 node_modules/

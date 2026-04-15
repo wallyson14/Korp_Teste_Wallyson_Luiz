@@ -1,3 +1,6 @@
+//aqui o domain da nota fiscal, com os campos necessários para o cabeçalho e os itens da nota.
+//ele serve para representar a estrutura de dados da nota fiscal, e é usado para mapear os dados do banco de dados usando o GORM.
+
 package domain
 
 import (
@@ -13,9 +16,7 @@ const (
 	StatusFechada StatusNota = "Fechada"
 )
 
-// NotaFiscal representa o cabeçalho da nota.
-// O campo Numero usa uma sequence do PostgreSQL (ver database.go) para evitar
-// race condition em numeração sequencial concorrente (Q-03 corrigido).
+// aqui a NotaFiscal representa o cabeçalho da nota, e tem um relacionamento um-para-muitos com os itens da nota
 type NotaFiscal struct {
 	ID        uint           `json:"id"         gorm:"primarykey"`
 	Numero    int            `json:"numero"     gorm:"uniqueIndex;not null"`
@@ -28,7 +29,7 @@ type NotaFiscal struct {
 
 // ItemNota representa um produto dentro da nota fiscal.
 // Armazena 'descricao' e 'codigo_produto' localmente para preservar o
-// estado histórico da nota — se o produto for alterado depois, a nota
+// estado histórico da nota se o produto for alterado depois, a nota
 // deve refletir o estado no momento da emissão.
 type ItemNota struct {
 	ID            uint           `json:"id"              gorm:"primarykey"`

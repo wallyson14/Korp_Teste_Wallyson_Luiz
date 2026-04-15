@@ -33,7 +33,7 @@ func ConnectDB() {
 	var db *gorm.DB
 	var err error
 
-	// Retry de conexão
+	// Retry de conexão é para garantir que o serviço aguarde o banco de dados estar pronto, especialmente útil em ambientes com containers (Docker Compose)
 	for attempt := 1; attempt <= 5; attempt++ {
 		db, err = gorm.Open(postgres.Open(dsn), gormConfig)
 		if err == nil {
@@ -41,28 +41,28 @@ func ConnectDB() {
 		}
 
 		waitSecs := attempt * 2
-		log.Printf("⏳ Tentativa %d/5 — aguardando %ds: %v", attempt, waitSecs, err)
+		log.Printf("Tentativa %d/5 — aguardando %ds: %v", attempt, waitSecs, err)
 		time.Sleep(time.Duration(waitSecs) * time.Second)
 	}
 
 	if err != nil {
-		log.Fatalf("❌ Falha ao conectar ao banco: %v", err)
+		log.Fatalf("Falha ao conectar ao banco: %v", err)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		log.Fatalf("❌ Erro ao obter sql.DB: %v", err)
+		log.Fatalf("Erro ao obter sql.DB: %v", err)
 	}
 
 	sqlDB.SetMaxOpenConns(25)
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetConnMaxLifetime(5 * time.Minute)
 
-	// MIGRATION
+	// e o MIGRATION aqui é onde o GORM cria a tabela de produtos.
 	if err := db.AutoMigrate(&domain.Produto{}); err != nil {
-		log.Fatalf("❌ Erro na AutoMigrate: %v", err)
+		log.Fatalf("Erro na AutoMigrate: %v", err)
 	}
 
 	DB = db
-	log.Println("✅ Banco conectado e migrado")
+	log.Println("Banco conectado e migrado")
 }

@@ -4,7 +4,7 @@
 
 ---
 
-## 🧱 Arquitetura
+## Arquitetura
 
 O sistema é estruturado em **arquitetura de microsserviços**, composta por quatro containers independentes orquestrados via Docker Compose:
 
@@ -34,7 +34,7 @@ O sistema é estruturado em **arquitetura de microsserviços**, composta por qua
 
 ---
 
-## 🚀 Stack Tecnológica
+## Stack Tecnológica
 
 | Camada | Tecnologia | Justificativa |
 |---|---|---|
@@ -47,7 +47,7 @@ O sistema é estruturado em **arquitetura de microsserviços**, composta por qua
 
 ---
 
-## 📋 Requisitos implementados
+## Requisitos implementados
 
 ### Obrigatórios
 - [x] Cadastro de Produtos (código, descrição, saldo)
@@ -66,7 +66,7 @@ O sistema é estruturado em **arquitetura de microsserviços**, composta por qua
 
 ---
 
-## 🏃 Como executar
+## Como executar
 
 ### Pré-requisitos
 - Docker Desktop instalado e rodando
@@ -75,23 +75,19 @@ O sistema é estruturado em **arquitetura de microsserviços**, composta por qua
 ### Passo a passo
 
 ```bash
-# 1. Clonar o repositório
 git clone https://github.com/wallyson14/Korp_Teste_Wallyson_Luiz.git
 cd Korp_Teste_Wallyson_Luiz
 
-# 2. Dar permissão de execução ao script de inicialização do banco
 chmod +x init-db.sh
 
-# 3. Instalar dependências do frontend (gera o package-lock.json)
 cd frontend
 npm install --legacy-peer-deps
 cd ..
 
-# 4. Subir todos os serviços
 docker-compose up --build
 ```
 
-> ⚠️ **Usuários Windows/WSL2:** se o `localhost` não responder nas portas 8081/8082 após o build, execute no PowerShell como Administrador: `netsh interface portproxy reset` e reinicie o terminal WSL.
+> **Usuários Windows/WSL2:** se o `localhost` não responder nas portas 8081/8082 após o build, execute no PowerShell como Administrador: `netsh interface portproxy reset` e reinicie o terminal WSL.
 
 Após o build (primeira vez ~3 minutos), acesse:
 
@@ -103,7 +99,7 @@ Após o build (primeira vez ~3 minutos), acesse:
 
 ---
 
-## 🔌 Endpoints da API
+## Endpoints da API
 
 ### estoque-service (`localhost:8081`)
 
@@ -130,7 +126,7 @@ Após o build (primeira vez ~3 minutos), acesse:
 
 ---
 
-## 🔍 Decisões técnicas relevantes
+## Decisões técnicas relevantes
 
 ### Numeração de notas via sequence PostgreSQL
 Em vez de `MAX(numero) + 1`, que tem race condition sob concorrência, utilizamos `nextval('seq_numero_nota')` — atômico por definição no PostgreSQL. Duas requisições simultâneas nunca recebem o mesmo número.
@@ -153,47 +149,3 @@ Erros HTTP de qualquer serviço passam por um único interceptor funcional que m
 
 ### BehaviorSubject para estado reativo
 Os serviços Angular usam `BehaviorSubject` para manter o estado das listas em memória. Componentes que assinam `produtos$` ou `notas$` são atualizados automaticamente após qualquer operação de escrita, sem re-fetch manual.
-
----
-
-## 🗂️ Estrutura do projeto
-
-```
-Korp_Teste_SeuNome/
-├── docker-compose.yml
-├── init-db.sh                    # Cria estoque_db e faturamento_db
-│
-├── estoque-service/              # Microsserviço de controle de estoque
-│   ├── config/database.go        # Conexão PostgreSQL com retry e pool
-│   ├── models/produto.go         # Model com partial unique index
-│   ├── repository/               # SELECT FOR UPDATE, erros sentinela
-│   ├── handlers/                 # HTTP handlers com validação tipada
-│   └── routes/routes.go          # Rotas versionadas /api/v1
-│
-├── faturamento-service/          # Microsserviço de gestão de notas
-│   ├── config/database.go        # Conexão + criação da sequence
-│   ├── config/estoque_client.go  # Client HTTP para o estoque-service
-│   ├── models/nota_fiscal.go     # NotaFiscal + ItemNota
-│   ├── repository/               # Lógica de negócio + transações
-│   ├── handlers/nota_handler.go  # Impressão em duas fases
-│   └── routes/routes.go
-│
-└── frontend/                     # SPA Angular 17
-    ├── src/app/
-    │   ├── core/
-    │   │   ├── interceptors/     # Interceptor HTTP global de erros
-    │   │   ├── models/           # Interfaces TypeScript fortemente tipadas
-    │   │   └── services/         # BehaviorSubject + switchMap
-    │   ├── features/
-    │   │   ├── produtos/         # CRUD completo com OnPush
-    │   │   └── notas/            # Accordion + impressão com finalize()
-    │   └── shared/components/    # Header, ConfirmDialog reutilizável
-    ├── nginx.conf                # Proxy reverso + SPA fallback
-    └── Dockerfile                # Multi-stage: node build + nginx serve
-```
-
----
-
-## 👤 Autor
-
-**Wallyson Luiz** — Desenvolvedor em processo seletivo Korp ERP

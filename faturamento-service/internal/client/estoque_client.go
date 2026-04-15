@@ -1,3 +1,5 @@
+// Este arquivo é o client HTTP para o estoque-service. Ele encapsula as chamadas ao serviço de estoque, lidando com erros e deserialização.
+
 package config
 
 import (
@@ -10,14 +12,13 @@ import (
 	"time"
 )
 
-// httpClient com timeout explícito — sem isso, uma requisição para um serviço
-// lento pode segurar uma goroutine indefinidamente, esgotando o pool de workers.
+// aqui ativo o httpClient com timeout explícito que sem isso, uma requisição para um serviço
+
 var httpClient = &http.Client{
 	Timeout: 5 * time.Second,
 }
 
-// ProdutoEstoque é o DTO de resposta do estoque-service.
-// Mantemos separado do model local para não criar acoplamento entre serviços.
+//aqui Mantice separado do model local para não criar acoplamento entre serviços.
 type ProdutoEstoque struct {
 	ID        uint   `json:"id"`
 	Codigo    string `json:"codigo"`
@@ -29,8 +30,7 @@ func estoqueURL() string {
 	return os.Getenv("ESTOQUE_BASE_URL")
 }
 
-// BuscarProduto consulta o estoque-service pelo ID do produto.
-// BUG-03 corrigido: rota usa /api/v1/produtos, alinhada com o estoque-service.
+// BuscarProduto ele consulta o estoque-service pelo ID do produto.
 func BuscarProduto(produtoID uint) (*ProdutoEstoque, error) {
 	url := fmt.Sprintf("%s/api/v1/produtos/%d", estoqueURL(), produtoID)
 
@@ -42,7 +42,7 @@ func BuscarProduto(produtoID uint) (*ProdutoEstoque, error) {
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		// ok, prossegue
+	
 	case http.StatusNotFound:
 		return nil, errors.New("produto não encontrado no serviço de estoque")
 	default:
@@ -56,8 +56,8 @@ func BuscarProduto(produtoID uint) (*ProdutoEstoque, error) {
 	return &produto, nil
 }
 
-// BaixarSaldo deduz quantidade do saldo de um produto via estoque-service.
-// BUG-03 corrigido: rota /api/v1/produtos/:id/saldo.
+// ja o BaixarSaldo é para baixar o saldo do produto no estoque, ele faz uma requisição PATCH para o endpoint específico de saldo.
+
 func BaixarSaldo(produtoID uint, quantidade int) error {
 	url := fmt.Sprintf("%s/api/v1/produtos/%d/saldo", estoqueURL(), produtoID)
 
@@ -87,7 +87,7 @@ func BaixarSaldo(produtoID uint, quantidade int) error {
 	}
 }
 
-// VerificarSaude checa se o estoque-service está respondendo.
+// essa funçao VerificarSaude checa se o estoque-service está respondendo.
 func VerificarSaude() bool {
 	resp, err := httpClient.Get(estoqueURL() + "/health")
 	if err != nil {
