@@ -123,29 +123,3 @@ Após o build (primeira vez ~3 minutos), acesse:
 | `DELETE` | `/api/v1/notas/:id/itens/:itemId` | Remove item da nota |
 | `POST` | `/api/v1/notas/:id/imprimir` | **Imprime, fecha nota e baixa estoque** |
 | `GET` | `/health` | Health check + status do estoque |
-
----
-
-## Decisões técnicas relevantes
-
-### Numeração de notas via sequence PostgreSQL
-Em vez de `MAX(numero) + 1`, que tem race condition sob concorrência, utilizamos `nextval('seq_numero_nota')` — atômico por definição no PostgreSQL. Duas requisições simultâneas nunca recebem o mesmo número.
-
-### SELECT FOR UPDATE na baixa de estoque
-O endpoint `PATCH /produtos/:id/saldo` executa dentro de uma transação com `SELECT FOR UPDATE`. Isso bloqueia a linha do produto até o commit, garantindo que duas notas disputando o último item do estoque não causem saldo negativo.
-
-### Impressão em duas fases
-A impressão de nota executa em duas fases distintas:
-1. **Validação**: consulta o saldo atual de **todos** os itens antes de modificar qualquer coisa
-2. **Execução**: só baixa os saldos se todos passaram na validação
-
-Isso evita inconsistência parcial — se validar 3 itens e o 2º falhar, nenhum saldo é modificado.
-
-### Soft delete com partial unique index
-Produtos deletados usam soft delete (campo `deleted_at`). O índice único do campo `codigo` é um partial index (`WHERE deleted_at IS NULL`), permitindo reutilizar o mesmo código após deleção.
-
-### Interceptor HTTP centralizado no Angular
-Erros HTTP de qualquer serviço passam por um único interceptor funcional que mapeia os status codes para mensagens amigáveis em português e exibe via `MatSnackBar`. Elimina duplicação de tratamento de erro nos componentes.
-
-### BehaviorSubject para estado reativo
-Os serviços Angular usam `BehaviorSubject` para manter o estado das listas em memória. Componentes que assinam `produtos$` ou `notas$` são atualizados automaticamente após qualquer operação de escrita, sem re-fetch manual.
