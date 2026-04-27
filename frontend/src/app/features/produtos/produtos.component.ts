@@ -40,16 +40,6 @@ import {
  * - ngOnDestroy: emite no destroy$ para cancelar todas as subscriptions
  *   ativas, prevenindo memory leaks ao navegar para outra rota.
  *
- * ChangeDetectionStrategy.OnPush:
- *   O Angular só verifica este componente quando:
- *   1. Um @Input muda de referência
- *   2. Um evento DOM ocorre dentro do componente
- *   3. markForCheck() é chamado explicitamente (feito após cada emissão do BehaviorSubject)
- *   Isso reduz drasticamente o número de ciclos de CD na árvore de componentes.
- *
- * F-BUG-02 CORRIGIDO: MatChipsModule removido — não era usado no template.
- * F-BUG-13 CORRIGIDO: carregando = true inicializado no campo, não em ngOnInit,
- *   eliminando o frame de UI onde carregando=false mas dados ainda não chegaram.
  */
 @Component({
   selector: 'app-produtos',
@@ -372,7 +362,6 @@ export class ProdutosComponent implements OnInit, OnDestroy {
   produtos: Produto[] = [];
   colunas = ['codigo', 'descricao', 'saldo', 'acoes'];
 
-  // F-BUG-13 CORRIGIDO: true no campo garante que nunca há frame com
   // carregando=false antes dos dados chegarem
   carregando = true;
   salvando = false;
